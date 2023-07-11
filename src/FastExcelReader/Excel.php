@@ -36,8 +36,6 @@ class Excel
 
     protected array $styles = [];
 
-    protected array $sizes = [];
-
     /** @var Sheet[] */
     protected array $sheets = [];
 
@@ -862,42 +860,6 @@ class Excel
         }
 
         return $this->styles['_'];
-    }
-
-    public function readSizes(string $innerFile = null): array
-    {
-        if (!empty($this->sizes))
-            return $this->sizes;
-
-        if (!$innerFile) {
-            $innerFile = 'xl/styles.xml';
-        }
-        $this->xmlReader->openZip($innerFile);
-        while ($this->xmlReader->read()) {
-            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'sheetFormatPr') {
-                $this->sizes['defaultColWidth'] = floatval($this->xmlReader->getAttribute('defaultColWidth'));
-                $this->sizes['defaultRowHeight'] = floatval($this->xmlReader->getAttribute('defaultRowHeight'));
-            }
-            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'col') {
-                $minCol = intval($this->xmlReader->getAttribute('min'));
-                $maxCol = intval($this->xmlReader->getAttribute('max'));
-                if ($minCol == $maxCol)
-                    $this->sizes['cols'][$minCol] = floatval($this->xmlReader->getAttribute('width'));
-                else if ($minCol < $maxCol) {
-                    for ($i = $minCol; $i <= $maxCol; $i++) {
-                        $this->sizes['cols'][$i] = floatval($this->xmlReader->getAttribute('width'));
-                    }
-                }
-            }
-            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'row') {
-                $index = intval($this->xmlReader->getAttribute('r'));
-                $this->sizes['rows'][$index] = floatval($this->xmlReader->getAttribute('ht'));
-            }
-            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'mergeCell') {
-                $this->sizes['mergeCell'][] = $this->xmlReader->getAttribute('ref');
-            }
-        }
-        return $this->sizes;
     }
 
     /**
