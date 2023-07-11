@@ -207,45 +207,17 @@ class Excel
 
     protected function _loadStyleNumFmts($root, $tagName)
     {
-        static $standardNumFmt = [0 => "General",
-            1 => "0",
-            2 => "0.00",
-            3 => "#,##0",
-            4 => "#,##0.00",
-            9 => "0%",
-            10 => "0.00%",
-            11 => "0.00E+00",
-            12 => "# ?/?",
-            13 => "# ??/??",
-            14 => "mm-dd-yy",
-            15 => "d-mmm-yy",
-            16 => "d-mmm",
-            17 => "mmm-yy",
-            18 => "h:mm AM/PM",
-            19 => "h:mm:ss AM/PM",
-            20 => "h:mm",
-            21 => "h:mm:ss",
-            22 => "m/d/yy h:mm",
-            37 => "#,##0 ;(#,##0)",
-            38 => "#,##0 ;[Red](#,##0)",
-            39 => "#,##0.00;(#,##0.00)",
-            40 => "#,##0.00;[Red](#,##0.00)",
-            45 => "mm:ss",
-            46 => "[h]:mm:ss",
-            47 => "mmss.0",
-            48 => "##0.0E+0",
-            49 => "@",
-        ];
-
         foreach ($root->childNodes as $child) {
-            $numFmtId = $child->getAttribute('numFmtId');
-            $formatCode = $child->getAttribute('formatCode');
-            if ($numFmtId !== '' && $formatCode !== '') {
-                $node = [
-                    'format-num-id' => (int)$numFmtId,
-                    'format-pattern' => $formatCode,
-                ];
-                $this->styles['_'][$tagName][$node['format-num-id']] = $node;
+            if ($child->nodeType == XML_ELEMENT_NODE) {
+                $numFmtId = $child->getAttribute('numFmtId');
+                $formatCode = $child->getAttribute('formatCode');
+                if ($numFmtId !== '' && $formatCode !== '') {
+                    $node = [
+                        'format-num-id' => (int)$numFmtId,
+                        'format-pattern' => $formatCode,
+                    ];
+                    $this->styles['_'][$tagName][$node['format-num-id']] = $node;
+                }
             }
         }
     }
@@ -267,7 +239,7 @@ class Excel
                 elseif ($fontStyle->nodeName === 'strike') {
                     $node['font-style-strike'] = 1;
                 }
-                elseif (($v = $fontStyle->getAttribute('val')) !== '') {
+                elseif (($fontStyle->nodeType == XML_ELEMENT_NODE && $v = $fontStyle->getAttribute('val')) !== '') {
                     if ($fontStyle->nodeName === 'sz') {
                         $name = 'font-size';
                     }
@@ -286,7 +258,7 @@ class Excel
         foreach ($root->childNodes as $fill) {
             $node = [];
             foreach ($fill->childNodes as $patternFill) {
-                if (($v = $patternFill->getAttribute('patternType')) !== '') {
+                if (($patternFill->nodeType == XML_ELEMENT_NODE && $v = $patternFill->getAttribute('patternType')) !== '') {
                     $node['fill-pattern'] = $v;
                 }
                 foreach ($patternFill->childNodes as $child) {
@@ -304,7 +276,7 @@ class Excel
         foreach ($root->childNodes as $border) {
             $node = [];
             foreach ($border->childNodes as $side) {
-                if (($v = $side->getAttribute('style')) !== '') {
+                if (($side->nodeType == XML_ELEMENT_NODE && $v = $side->getAttribute('style')) !== '') {
                     $node['border-' . $side->nodeName . '-style'] = $v;
                 }
                 else {
@@ -326,7 +298,7 @@ class Excel
         foreach ($root->childNodes as $xf) {
             $node = [];
             foreach ($attributes as $attribute) {
-                if (($v = $xf->getAttribute($attribute)) !== '') {
+                if (($xf->nodeType == XML_ELEMENT_NODE && $v = $xf->getAttribute($attribute)) !== '') {
                     if (substr($attribute, -2) === 'Id') {
                         $node[$attribute] = (int)$v;
                     }
@@ -337,14 +309,14 @@ class Excel
             }
             foreach ($xf->childNodes as $child) {
                 if ($child->nodeName === 'alignment') {
-                    if ($v = $child->getAttribute('horizontal')) {
+                    if ($child->nodeType == XML_ELEMENT_NODE && $v = $child->getAttribute('horizontal')) {
                         $node['format']['format-align-horizontal'] = $v;
                     }
-                    if ($v = $child->getAttribute('vertical')) {
+                    if ($child->nodeType == XML_ELEMENT_NODE && $v = $child->getAttribute('vertical')) {
                         $node['format']['format-align-vertical'] = $v;
                     }
-                    if (($v = $child->getAttribute('wrapText')) && ($v === 'true')) {
-                        $node['format']['format-wrap-text'] = 1;
+                    if ($child->nodeType == XML_ELEMENT_NODE && ($v = $child->getAttribute('wrapText'))/* && ($v === '1')*/) {
+                        $node['format']['format-wrap-text'] = (intval($v)) ? true : false;
                     }
                 }
             }
@@ -361,7 +333,6 @@ class Excel
             $innerFile = 'xl/styles.xml';
         }
         $this->xmlReader->openZip($innerFile);
-
         while ($this->xmlReader->read()) {
             if ($this->xmlReader->nodeType === \XMLReader::ELEMENT) {
                 switch ($this->xmlReader->name) {
