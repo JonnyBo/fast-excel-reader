@@ -4,26 +4,26 @@ namespace avadim\FastExcelReader;
 
 class Sheet
 {
-    public Excel $excel;
+    public $excel;
 
-    protected string $zipFilename;
+    protected $zipFilename;
 
-    protected string $sheetId;
+    protected $sheetId;
 
-    protected string $name;
+    protected $name;
 
-    protected string $path;
+    protected $path;
 
-    protected ?string $dimension = null;
+    protected $dimension = null;
 
-    protected array $area = [];
+    protected $area = [];
 
-    protected array $props = [];
+    protected $props = [];
     
     protected $sizes = [];
 
     /** @var Reader */
-    protected Reader $xmlReader;
+    protected $xmlReader;
 
 
     public function __construct($sheetName, $sheetId, $file, $path)
@@ -123,7 +123,7 @@ class Sheet
     /**
      * @return string
      */
-    public function id(): string
+    public function id()
     {
         return $this->sheetId;
     }
@@ -131,7 +131,7 @@ class Sheet
     /**
      * @return string
      */
-    public function name(): string
+    public function name()
     {
         return $this->name;
     }
@@ -141,7 +141,7 @@ class Sheet
      *
      * @return bool
      */
-    public function isName(string $name): bool
+    public function isName(string $name)
     {
         return strcasecmp($this->name, $name) === 0;
     }
@@ -151,7 +151,7 @@ class Sheet
      *
      * @return Reader
      */
-    protected function getReader(string $file = null): Reader
+    protected function getReader($file = null)
     {
         if (empty($this->xmlReader)) {
             if (!$file) {
@@ -163,7 +163,7 @@ class Sheet
         return $this->xmlReader;
     }
 
-    public function dimension(): ?string
+    public function dimension()
     {
         if ($this->dimension === null) {
             $xmlReader = $this->getReader();
@@ -181,7 +181,7 @@ class Sheet
      *
      * @return int
      */
-    public function countRows(): int
+    public function countRows()
     {
         $areaRange = $this->dimension();
         if ($areaRange && preg_match('/^([A-Za-z]+)(\d+)(:([A-Za-z]+)(\d+))?$/', $areaRange, $matches)) {
@@ -196,7 +196,7 @@ class Sheet
      *
      * @return int
      */
-    public function countColumns(): int
+    public function countColumns()
     {
         $areaRange = $this->dimension();
         if ($areaRange && preg_match('/^([A-Za-z]+)(\d+)(:([A-Za-z]+)(\d+))?$/', $areaRange, $matches)) {
@@ -211,7 +211,7 @@ class Sheet
      *
      * @return int
      */
-    public function countCols(): int
+    public function countCols()
     {
         return $this->countColumns();
     }
@@ -221,7 +221,7 @@ class Sheet
      *
      * @return $this
      */
-    public function setDateFormat($dateFormat): Sheet
+    public function setDateFormat($dateFormat)
     {
         $this->excel->setDateFormat($dateFormat);
 
@@ -267,7 +267,7 @@ class Sheet
      *
      * @return $this
      */
-    public function setReadArea(string $areaRange, ?bool $firstRowKeys = false): Sheet
+    public function setReadArea(string $areaRange, $firstRowKeys = false)
     {
         $area = self::_areaRange($areaRange);
         if ($area && isset($area['row_max'])) {
@@ -288,7 +288,7 @@ class Sheet
      *
      * @return $this
      */
-    public function setReadAreaColumns(string $columnsRange, ?bool $firstRowKeys = false): Sheet
+    public function setReadAreaColumns(string $columnsRange, $firstRowKeys = false)
     {
         $area = self::_areaRange($columnsRange);
         if ($area) {
@@ -316,7 +316,7 @@ class Sheet
      *
      * @return array
      */
-    public function readRows($columnKeys = [], int $resultMode = null, ?bool $styleIdxInclude = null): array
+    public function readRows($columnKeys = [], int $resultMode = null, $styleIdxInclude = null)
     {
         $data = [];
         $this->readCallback(static function($row, $col, $val) use (&$columnKeys, &$data) {
@@ -353,7 +353,7 @@ class Sheet
      *
      * @return array
      */
-    public function readRowsWithStyles($columnKeys = [], int $resultMode = null): array
+    public function readRowsWithStyles($columnKeys = [], int $resultMode = null)
     {
         $data = $this->readRows($columnKeys, $resultMode, true);
 
@@ -379,7 +379,7 @@ class Sheet
      *
      * @return array
      */
-    public function readColumns($columnKeys = null, int $resultMode = null, ?bool $styleIdxInclude = null): array
+    public function readColumns($columnKeys = null, int $resultMode = null, $styleIdxInclude = null)
     {
         if (is_int($columnKeys) && $columnKeys > 1 && $resultMode === null) {
             $resultMode = $columnKeys | Excel::KEYS_RELATIVE;
@@ -400,7 +400,7 @@ class Sheet
      *
      * @return array
      */
-    public function readColumnsWithStyles($columnKeys = null, int $resultMode = null): array
+    public function readColumnsWithStyles($columnKeys = null, int $resultMode = null)
     {
         $data = $this->readColumns($columnKeys, $resultMode, true);
 
@@ -422,7 +422,7 @@ class Sheet
      *
      * @return array
      */
-    public function readCells(?bool $styleIdxInclude = null): array
+    public function readCells(?bool $styleIdxInclude = null)
     {
         $data = [];
         $this->readCallback(static function($row, $col, $val) use (&$data) {
@@ -437,7 +437,7 @@ class Sheet
      *
      * @return array
      */
-    public function readCellsWithStyles(): array
+    public function readCellsWithStyles()
     {
         $data = $this->readCells(true);
         foreach ($data as $cell => $cellData) {
@@ -457,7 +457,7 @@ class Sheet
      * @param int|null $resultMode
      * @param bool|null $styleIdxInclude
      */
-    public function readCallback(callable $callback, $columnKeys = [], int $resultMode = null, ?bool $styleIdxInclude = null)
+    public function readCallback(callable $callback, $columnKeys = [], int $resultMode = null, $styleIdxInclude = null)
     {
         foreach ($this->nextRow($columnKeys, $resultMode, $styleIdxInclude) as $row => $rowData) {
             foreach ($rowData as $col => $val) {
@@ -482,7 +482,7 @@ class Sheet
      *
      * @return \Generator|null
      */
-    public function nextRow($columnKeys = [], int $resultMode = null, ?bool $styleIdxInclude = null, int $rowLimit = 0): ?\Generator
+    public function nextRow($columnKeys = [], $resultMode = null, $styleIdxInclude = null, $rowLimit = 0)
     {
         // <dimension ref="A1:C1"/>
         // sometimes sheets doesn't contain this tag
@@ -631,7 +631,7 @@ class Sheet
     /**
      * @return string|null
      */
-    protected function drawingFilename(): ?string
+    protected function drawingFilename()
     {
         $findName = str_replace('/worksheets/sheet', '/drawings/drawing', $this->path);
 
@@ -643,7 +643,7 @@ class Sheet
      *
      * @return array
      */
-    protected function extractDrawingInfo($xmlName): array
+    protected function extractDrawingInfo($xmlName)
     {
         $drawings = [
             'xml' => $xmlName,
@@ -715,7 +715,7 @@ class Sheet
     /**
      * @return bool
      */
-    public function hasDrawings(): bool
+    public function hasDrawings()
     {
         return (bool)$this->drawingFilename();
     }
@@ -723,7 +723,7 @@ class Sheet
     /**
      * @return int
      */
-    public function countImages(): int
+    public function countImages()
     {
         $result = 0;
         if ($this->hasDrawings()) {
@@ -746,7 +746,7 @@ class Sheet
     /**
      * @return array
      */
-    public function getImageList(): array
+    public function getImageList()
     {
         $result = [];
         if ($this->countImages()) {
@@ -764,7 +764,7 @@ class Sheet
     /**
      * @return array
      */
-    public function getImageListByRow($row): array
+    public function getImageListByRow($row)
     {
         $result = [];
         if ($this->countImages()) {
@@ -788,7 +788,7 @@ class Sheet
      *
      * @return bool
      */
-    public function hasImage(string $cell): bool
+    public function hasImage(string $cell)
     {
         if ($this->countImages()) {
 
@@ -805,7 +805,7 @@ class Sheet
      *
      * @return string|null
      */
-    public function imageEntryFullPath(string $cell): ?string
+    public function imageEntryFullPath(string $cell)
     {
         if ($this->countImages()) {
             $cell = strtoupper($cell);
@@ -826,7 +826,7 @@ class Sheet
      *
      * @return string|null
      */
-    public function getImageMimeType(string $cell): ?string
+    public function getImageMimeType(string $cell)
     {
         if (function_exists('mime_content_type') && ($path = $this->imageEntryFullPath($cell))) {
             return mime_content_type($path);
@@ -842,7 +842,7 @@ class Sheet
      *
      * @return string|null
      */
-    public function getImageName(string $cell): ?string
+    public function getImageName(string $cell)
     {
         if ($this->countImages()) {
             $cell = strtoupper($cell);
@@ -862,7 +862,7 @@ class Sheet
      *
      * @return string|null
      */
-    public function getImageBlob(string $cell): ?string
+    public function getImageBlob(string $cell)
     {
         if ($path = $this->imageEntryFullPath($cell)) {
             return file_get_contents($path);
@@ -879,7 +879,7 @@ class Sheet
      *
      * @return string|null
      */
-    public function saveImage(string $cell, ?string $filename = null): ?string
+    public function saveImage(string $cell, $filename = null)
     {
         if ($contents = $this->getImageBlob($cell)) {
             if (!$filename) {
@@ -901,15 +901,17 @@ class Sheet
      *
      * @return string|null
      */
-    public function saveImageTo(string $cell, string $dirname): ?string
+    public function saveImageTo(string $cell, string $dirname)
     {
         $filename = basename($this->props['drawings']['images'][strtoupper($cell)]['target']);
 
         return $this->saveImage($cell, str_replace(['\\', '/'], '', $dirname) . DIRECTORY_SEPARATOR . $filename);
     }
 
-    public function readSizes(): array
+    public function readSizes()
     {
+        $this->xmlReader = $this->getReader();
+        $this->xmlReader->openZip($this->path);
         while ($this->xmlReader->read()) {
             if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'sheetFormatPr') {
                 $this->sizes['defaultColWidth'] = floatval($this->xmlReader->getAttribute('defaultColWidth'));

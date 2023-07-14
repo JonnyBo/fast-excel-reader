@@ -9,9 +9,9 @@ namespace avadim\FastExcelReader;
  */
 class Reader extends \XMLReader
 {
-    protected string $zipFile;
+    protected $zipFile;
 
-    protected ?string $innerFile = null;
+    protected $innerFile = null;
 
     public function __construct($file)
     {
@@ -23,7 +23,7 @@ class Reader extends \XMLReader
         $this->close();
     }
 
-    public function fileList(): array
+    public function fileList()
     {
         $result = [];
 
@@ -84,7 +84,7 @@ class Reader extends \XMLReader
      *
      * @return bool
      */
-    public function openZip(string $innerFile, string $encoding = null, ?int $options = 0): bool
+    public function openZip(string $innerFile, string $encoding = null, $options = 0)
     {
         $this->innerFile = $innerFile;
 
@@ -94,7 +94,7 @@ class Reader extends \XMLReader
     /**
      * @return bool
      */
-    public function close(): bool
+    public function close()
     {
         if ($this->innerFile) {
             $this->innerFile = null;
@@ -108,7 +108,7 @@ class Reader extends \XMLReader
      *
      * @return bool
      */
-    public function seekOpenTag(string $tagName): bool
+    public function seekOpenTag(string $tagName)
     {
         while ($this->read()) {
             if ($this->nodeType === \XMLReader::ELEMENT && $this->name === $tagName) {

@@ -23,28 +23,28 @@ class Excel
     public const KEYS_RELATIVE = 32;
     public const KEYS_SWAP = 64;
 
-    protected string $file;
+    protected $file;
 
     /** @var Reader */
-    protected Reader $xmlReader;
+    protected $xmlReader;
 
-    protected array $fileList = [];
+    protected $fileList = [];
 
-    protected array $relations = [];
+    protected $relations = [];
 
-    protected array $sharedStrings = [];
+    protected $sharedStrings = [];
 
-    protected array $styles = [];
+    protected $styles = [];
 
     /** @var Sheet[] */
-    protected array $sheets = [];
+    protected $sheets = [];
 
-    protected int $defaultSheetId;
+    protected $defaultSheetId;
 
-    protected ?string $dateFormat = null;
+    protected $dateFormat = null;
 
-    protected bool $date1904 = false;
-    protected string $timezone;
+    protected $date1904 = false;
+    protected $timezone;
 
 
     /**
@@ -52,7 +52,7 @@ class Excel
      *
      * @param string|null $file
      */
-    public function __construct(string $file = null)
+    public function __construct($file = null)
     {
         if ($file) {
             $this->file = $file;
@@ -64,7 +64,7 @@ class Excel
     /**
      * @param string $file
      */
-    protected function _prepare(string $file)
+    protected function _prepare($file)
     {
         $this->xmlReader = new Reader($file);
         $this->fileList = $this->xmlReader->fileList();
@@ -111,7 +111,7 @@ class Excel
     /**
      * @param string|null $innerFile
      */
-    protected function _loadSheets(string $innerFile = null)
+    protected function _loadSheets($innerFile = null)
     {
         if (!$innerFile) {
             $innerFile = 'xl/workbook.xml';
@@ -147,7 +147,7 @@ class Excel
     /**
      * @param string|null $innerFile
      */
-    protected function _loadSharedStrings(string $innerFile = null)
+    protected function _loadSharedStrings($innerFile = null)
     {
         if (!$innerFile) {
             $innerFile = 'xl/sharedStrings.xml';
@@ -164,7 +164,7 @@ class Excel
     /**
      * @param string|null $innerFile
      */
-    protected function _loadStyles(string $innerFile = null)
+    protected function _loadStyles($innerFile = null)
     {
         if (!$innerFile) {
             $innerFile = 'xl/styles.xml';
@@ -369,7 +369,7 @@ class Excel
      *
      * @return Excel
      */
-    public static function open(string $file): Excel
+    public static function open(string $file)
     {
         return new self($file);
     }
@@ -382,7 +382,7 @@ class Excel
      *
      * @return Sheet
      */
-    public static function createSheet(string $sheetName, $sheetId, $file, $path): Sheet
+    public static function createSheet($sheetName, $sheetId, $file, $path)
     {
         return new Sheet($sheetName, $sheetId, $file, $path);
     }
@@ -394,7 +394,7 @@ class Excel
      *
      * @return int
      */
-    public static function colNum(string $colLetter): int
+    public static function colNum(string $colLetter)
     {
         static $colNumbers = [];
 
@@ -424,7 +424,7 @@ class Excel
      *
      * @return string
      */
-    public static function colLetter(int $colNumber): string
+    public static function colLetter(int $colNumber)
     {
         static $colLetters = ['',
             'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -453,7 +453,7 @@ class Excel
      *
      * @return int
      */
-    public function timestamp($excelDateTime): int
+    public function timestamp($excelDateTime)
     {
         if (is_numeric($excelDateTime)) {
             $d = floor($excelDateTime);
@@ -486,7 +486,7 @@ class Excel
      *
      * @return $this
      */
-    public function setDateFormat(string $dateFormat): Excel
+    public function setDateFormat(string $dateFormat)
     {
         $this->dateFormat = $dateFormat;
 
@@ -496,7 +496,7 @@ class Excel
     /**
      * @return string|null
      */
-    public function getDateFormat(): ?string
+    public function getDateFormat()
     {
         return $this->dateFormat;
     }
@@ -517,7 +517,7 @@ class Excel
      *
      * @return array
      */
-    public function styleByIdx($styleIdx): array
+    public function styleByIdx($styleIdx)
     {
         return $this->styles['cellXfs'][$styleIdx] ?? [];
     }
@@ -529,7 +529,7 @@ class Excel
      *
      * @return string|null
      */
-    public function sharedString($stringId): ?string
+    public function sharedString($stringId)
     {
         return $this->sharedStrings[$stringId] ?? null;
     }
@@ -539,7 +539,7 @@ class Excel
      *
      * @return array
      */
-    public function getSheetNames(): array
+    public function getSheetNames()
     {
         $result = [];
         foreach ($this->sheets as $sheetId => $sheet) {
@@ -555,7 +555,7 @@ class Excel
      *
      * @return Sheet|null
      */
-    public function sheet(?string $name = null): ?Sheet
+    public function sheet($name = null)
     {
         $resultId = null;
         if (!$name) {
@@ -585,7 +585,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function getSheet(string $name, string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function getSheet(string $name, string $areaRange = null, $firstRowKeys = false)
     {
         foreach ($this->sheets as $sheet) {
             if ($sheet->isName($name)) {
@@ -608,7 +608,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function getSheetById(int $sheetId, string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function getSheetById(int $sheetId, string $areaRange = null, $firstRowKeys = false)
     {
         if (!isset($this->sheets[$sheetId])) {
             throw new Exception('Sheet ID "' . $sheetId . '" not found');
@@ -628,7 +628,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function getFirstSheet(string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function getFirstSheet(string $areaRange = null, $firstRowKeys = false)
     {
         $sheetId = array_key_first($this->sheets);
         $sheet = $this->sheets[$sheetId];
@@ -648,7 +648,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function selectSheet(string $name, string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function selectSheet(string $name, string $areaRange = null, $firstRowKeys = false)
     {
         $sheet = $this->getSheet($name, $areaRange, $firstRowKeys);
         $this->defaultSheetId = $sheet->id();
@@ -665,7 +665,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function selectSheetById(int $sheetId, string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function selectSheetById(int $sheetId, string $areaRange = null, $firstRowKeys = false)
     {
         $sheet = $this->getSheetById($sheetId, $areaRange, $firstRowKeys);
         $this->defaultSheetId = $sheet->id();
@@ -681,7 +681,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function selectFirstSheet(string $areaRange = null, ?bool $firstRowKeys = false): Sheet
+    public function selectFirstSheet(string $areaRange = null, $firstRowKeys = false)
     {
         $sheet = $this->getFirstSheet($areaRange, $firstRowKeys);
         $this->defaultSheetId = $sheet->id();
@@ -695,7 +695,7 @@ class Excel
      *
      * @return Sheet
      */
-    public function setReadArea(string $areaRange, ?bool $firstRowKeys = false): Sheet
+    public function setReadArea(string $areaRange, $firstRowKeys = false)
     {
         return $this->sheets[$this->defaultSheetId]->setReadArea($areaRange, $firstRowKeys);
     }
@@ -706,7 +706,7 @@ class Excel
      * @param callback $callback
      * @param int|null $resultMode
      */
-    public function readCallback(callable $callback, int $resultMode = null, ?bool $styleIdxInclude = null)
+    public function readCallback(callable $callback, int $resultMode = null, $styleIdxInclude = null)
     {
         $this->sheets[$this->defaultSheetId]->readCallback($callback, $resultMode);
     }
@@ -725,7 +725,7 @@ class Excel
      *
      * @return array
      */
-    public function readRows($columnKeys = [], int $resultMode = null, ?bool $styleIdxInclude = null): array
+    public function readRows($columnKeys = [], int $resultMode = null, $styleIdxInclude = null)
     {
         return $this->sheets[$this->defaultSheetId]->readRows($columnKeys, $resultMode, $styleIdxInclude);
     }
@@ -738,7 +738,7 @@ class Excel
      *
      * @return array
      */
-    public function readRowsWithStyles($columnKeys = [], int $resultMode = null): array
+    public function readRowsWithStyles($columnKeys = [], int $resultMode = null)
     {
         return $this->sheets[$this->defaultSheetId]->readRowsWithStyles($columnKeys, $resultMode);
     }
@@ -751,7 +751,7 @@ class Excel
      *
      * @return array
      */
-    public function readColumns($columnKeys = null, int $resultMode = null): array
+    public function readColumns($columnKeys = null, int $resultMode = null)
     {
         return $this->sheets[$this->defaultSheetId]->readColumns($columnKeys, $resultMode);
     }
@@ -764,7 +764,7 @@ class Excel
      *
      * @return array
      */
-    public function readColumnsWithStyles($columnKeys = null, int $resultMode = null): array
+    public function readColumnsWithStyles($columnKeys = null, int $resultMode = null)
     {
         return $this->sheets[$this->defaultSheetId]->readColumnsWithStyles($columnKeys, $resultMode);
     }
@@ -774,7 +774,7 @@ class Excel
      *
      * @return array
      */
-    public function readCells(): array
+    public function readCells()
     {
         return $this->sheets[$this->defaultSheetId]->readCells();
     }
@@ -784,12 +784,12 @@ class Excel
      *
      * @return array
      */
-    public function readCellsWithStyles(): array
+    public function readCellsWithStyles()
     {
         return $this->sheets[$this->defaultSheetId]->readCellsWithStyles();
     }
 
-    public function innerFileList(): array
+    public function innerFileList()
     {
         return $this->fileList;
     }
@@ -799,7 +799,7 @@ class Excel
      *
      * @return bool
      */
-    public function hasDrawings(): bool
+    public function hasDrawings()
     {
         return !empty($this->relations['drawings']);
     }
@@ -809,7 +809,7 @@ class Excel
      *
      * @return bool
      */
-    public function hasImages(): bool
+    public function hasImages()
     {
         if ($this->hasDrawings()) {
             foreach ($this->sheets as $sheet) {
@@ -825,7 +825,7 @@ class Excel
     /**
      * @return int
      */
-    public function countImages(): int
+    public function countImages()
     {
         $result = 0;
         if ($this->hasDrawings()) {
@@ -840,7 +840,7 @@ class Excel
     /**
      * @return array
      */
-    public function getImageList(): array
+    public function getImageList()
     {
         $result = [];
         if ($this->hasDrawings()) {
@@ -852,7 +852,7 @@ class Excel
         return $result;
     }
 
-    public function readStyles(): array
+    public function readStyles()
     {
         if (!isset($this->styles['_'])) {
             $this->styles['_'] = [];
@@ -862,13 +862,43 @@ class Excel
         return $this->styles['_'];
     }
 
+    public function readSizes()
+    {
+        //$this->getReader();
+        while ($this->xmlReader->read()) {
+            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'sheetFormatPr') {
+                $this->sizes['defaultColWidth'] = floatval($this->xmlReader->getAttribute('defaultColWidth'));
+                $this->sizes['defaultRowHeight'] = floatval($this->xmlReader->getAttribute('defaultRowHeight'));
+            }
+            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'col') {
+                $minCol = intval($this->xmlReader->getAttribute('min'));
+                $maxCol = intval($this->xmlReader->getAttribute('max'));
+                if ($minCol == $maxCol)
+                    $this->sizes['cols'][$minCol] = floatval($this->xmlReader->getAttribute('width'));
+                else if ($minCol < $maxCol) {
+                    for ($i = $minCol; $i <= $maxCol; $i++) {
+                        $this->sizes['cols'][$i] = floatval($this->xmlReader->getAttribute('width'));
+                    }
+                }
+            }
+            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'row') {
+                $index = intval($this->xmlReader->getAttribute('r'));
+                $this->sizes['rows'][$index] = floatval($this->xmlReader->getAttribute('ht'));
+            }
+            if ($this->xmlReader->nodeType === \xmlReader::ELEMENT && $this->xmlReader->name === 'mergeCell') {
+                $this->sizes['mergeCell'][] = $this->xmlReader->getAttribute('ref');
+            }
+        }
+        return $this->sizes;
+    }
+
     /**
      * @param int $styleIdx
      * @param bool|null $flat
      *
      * @return array
      */
-    public function getCompleteStyleByIdx(int $styleIdx, ?bool $flat = false): array
+    public function getCompleteStyleByIdx(int $styleIdx, $flat = false)
     {
         static $completedStyles = [];
 
