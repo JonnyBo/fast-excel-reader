@@ -491,6 +491,7 @@ class Sheet
         }
 
         $readArea = $this->area;
+
         if (!empty($columnKeys) && is_array($columnKeys)) {
             $firstRowKeys = is_int($resultMode) && ($resultMode & Excel::KEYS_FIRST_ROW);
             $columnKeys = array_combine(array_map('strtoupper', array_keys($columnKeys)), array_values($columnKeys));
@@ -622,7 +623,6 @@ class Sheet
         if ($row > -1 && $rowData) {
             yield $row => $rowData;
         }
-
         $xmlReader->close();
 
         return null;
